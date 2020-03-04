@@ -126,6 +126,7 @@
                 @change="onInput($event, obj); checkDateFormat(obj)"
                 :required="true"
                 :max="new Date().toISOString().substr(0, 10)"
+				:min="(new Date().toISOString().substr(0, 10)).substring(0,4)-150 + (new Date().toISOString().substr(0, 10)).slice(4,15)"
               ></v-date-picker>
             </v-menu>
 
