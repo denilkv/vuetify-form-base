@@ -216,7 +216,10 @@
                 <!-- btn   -->
                 <v-btn
                   v-else-if="obj.schema.type === 'btn'"
-                  v-bind="obj.schema"
+                  label="obj.label"
+                  :small="true"
+                  :outlined="true"
+                  :rounded="true",
                   @click="onEvent($event, obj, button)"
                 >
                   <v-icon
