@@ -216,10 +216,11 @@
                 <!-- btn   -->
                 <v-btn
                   v-else-if="obj.schema.type === 'btn'"
-                  label="obj.label"
-                  :small="true"
-                  :outlined="true"
-                  :rounded="true",
+                  id="search"
+                  :small="obj.schema.small"
+                  :rounded="obj.schema.rounded"
+                  class="white--text"
+                  :color="obj.schema.color"
                   @click="onEvent($event, obj, button)"
                 >
                   <v-icon
