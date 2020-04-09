@@ -126,6 +126,140 @@
                     @input="menu = false"
                     @focus="onEvent($event, obj)"
                     @change="onInput($event, obj)"
+                    :show-current="datePic ? datePic : setDate(obj.value)"
+                    :required="true"
+                    :max="new Date().toISOString().substr(0, 10)"
+                  ></v-date-picker>
+                </v-menu>
+
+                <!-- list -->
+                <template
+                  v-else-if="obj.schema.type === list"
+                >
+                  <v-toolbar
+                    v-if="obj.schema.label"
+                    v-bind="obj.schema"
+                    dark
+                  >
+                    <v-toolbar-title>{{ obj.schema.label }}</v-toolbar-title>
+                  </v-toolbar>
+                  <v-list>
+                    <v-list-item-group
+                      v-model="obj.schema.model"
+                      v-bind="obj.schema"
+                      light
+                    >
+                      <v-list-item
+                        v-for="(item, ix) in setValue(obj)"
+                        :key="ix"
+                        @click="onEvent($event, obj, list )"
+                      >
+                        <v-list-item-icon>
+                          <v-icon v-text="obj.schema.icon" />
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title v-text="obj.schema.item ? item[obj.schema.item] : item" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </template>
+
+                <!-- checkbox | switch -->
+                <div
+                  :is="mapTypeToComponent(obj.schema.type)"
+                  v-else-if="obj.schema.type === 'switch' || obj.schema.type === 'checkbox'"
+                  :input-value="setValue(obj)"
+                  v-bind="obj.schema"
+                  @change="onInput($event, obj)"
+                />
+
+                <!-- file -->
+                <v-file-input
+                  v-else-if="obj.schema.type === 'file' "
+                  :value="setValue(obj)"
+                  v-bind="obj.schema"
+                  @focus="onEvent($event, obj)"
+                  @blur="onEvent($event, obj)"
+                  @change="onInput($event, obj)"
+                />
+
+                <!-- icon -->
+                <v-icon
+                  v-else-if="obj.schema.type === 'icon'"
+                  v-bind="obj.schema"
+                  @click="onEvent($event, obj)"
+                >
+                  <div
+                    v-for="(item, idx) in setValue(obj)"
+                    :key="idx"
+                    v-bind="obj.schema"
+                    :value="setValue(obj)"
+                  >
+                    <slot
+                      :name="getKeyArraySlot(obj)"
+                      :item="item"
+                    >
+                      <v-form-base
+                        :id="`${id}-${obj.key}-${idx}`"
+                        :value="item"
+                        :schema="obj.schema.schema"
+                        :class="`${id}-${obj.key}`"
+                      />
+                    </slot>
+                  </div>
+                </template>
+
+                <!-- select -->
+                <v-select
+                  v-else-if="obj.schema.type === 'select'"
+                  :value="setValue(obj)"
+                  v-bind="obj.schema"
+                  @focus="onEvent($event, obj)"
+                  @change="onInput($event, obj)"
+                  @blur="onEvent($event, obj)"
+                ></v-select>
+
+                <!-- treeview -->
+                <v-treeview
+                  v-else-if="obj.schema.type === treeview"
+                  v-model="obj.schema.model"
+                  :items="setValue(obj)"
+                  :active.sync="obj.schema.model"
+                  :open.sync="obj.schema.open"
+                  v-bind="obj.schema"
+                  @update:open="onEvent({type:'click'}, obj, 'open' )"
+                  @update:active="onEvent({type:'click'}, obj, 'selected' )"
+                />
+
+                <!-- Calendar -->
+                <v-menu
+                  v-else-if="obj.schema.type === 'calendar'"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  offset-y
+                  full-width
+                  ref="menu1"
+                  max-width="290px"
+                  min-width="290px"
+                  transition="scale-transition"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-text-field
+                      v-model="obj.value"
+                      v-on="on"
+                      v-mask="obj.schema.mask"
+                      v-bind="obj.schema"
+                      @input="setDate(obj.value)"
+                      @change="onInput($event, obj)"
+                      id="required"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="datePic"
+                    @input="menu = false"
+                    @focus="onEvent($event, obj)"
+                    @change="onInput($event, obj)"
                     :required="true"
                     :max="new Date().toISOString().substr(0, 10)"
                   ></v-date-picker>
@@ -311,6 +445,7 @@
 // import & declarations
 import { get, isPlainObject, isFunction, isString, isEmpty, orderBy, delay } from 'lodash'
 import { mask } from 'vue-the-mask'
+import moment from 'moment'
 
 const typeToComponent = {
 
@@ -441,10 +576,13 @@ export default {
   },  
   methods: {
     setDate(enteredDate) {
-      const date = new Date(enteredDate);
+      this.menu = false;
+      let validateFormat = moment(enteredDate, 'YYYY-MM-DD', true).isValid();
+      let convertedToCalendarFormat = validateFormat ? enteredDate : moment(enteredDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      let date = new Date(convertedToCalendarFormat);
 
       if (date.toString() !== "Invalid Date" && enteredDate.length > 9) {
-        this.datePic = enteredDate;
+        this.datePic = convertedToCalendarFormat;
       }
     },
     mapTypeToComponent (type) {
