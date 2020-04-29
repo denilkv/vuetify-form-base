@@ -116,7 +116,7 @@
                       v-on="on"
                       v-mask="obj.schema.mask"
                       v-bind="obj.schema"
-                      @input="setDate(obj.value)"
+                      @input="setDate(obj.value); menu = false;"
                       @change="onInput($event, obj)"
                       id="required"
                     ></v-text-field>
@@ -127,6 +127,7 @@
                     @focus="onEvent($event, obj)"
                     @change="onInput($event, obj)"
                     :show-current="datePic ? datePic : setDate(obj.value)"
+                    :no-title="true"
                     :required="true"
                     :max="new Date().toISOString().substr(0, 10)"
                   ></v-date-picker>
@@ -443,7 +444,6 @@ export default {
   },  
   methods: {
     setDate(enteredDate) {
-      this.menu = false;
       let validateFormat = moment(enteredDate, 'YYYY-MM-DD', true).isValid();
       let convertedToCalendarFormat = validateFormat ? enteredDate : moment(enteredDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
       let date = new Date(convertedToCalendarFormat);
