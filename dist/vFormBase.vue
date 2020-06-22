@@ -118,7 +118,7 @@
                       v-bind="obj.schema"
                       @input="setDate(obj.value); menu = false;"
                       @change="onInput($event, obj)"
-                      id="required"
+                      :id="obj.schema.id"
                     ></v-text-field>
                   </template>
                   <v-date-picker
