@@ -101,7 +101,7 @@
                 <!-- Calendar -->
                 <v-menu
                   v-else-if="obj.schema.type === 'calendar'"
-                  v-model="menu"
+                  v-model="obj.isDisplay"
                   :close-on-content-click="false"
                   offset-y
                   full-width
@@ -112,21 +112,21 @@
                 >
                   <template v-slot:activator="{ on }">
                     <v-text-field
-                      v-model="obj.value"
+                      :value="obj.value"
                       v-on="on"
                       v-mask="obj.schema.mask"
                       v-bind="obj.schema"
-                      @input="setDate(obj.value); menu = false;"
-                      @change="onInput($event, obj)"
-                      id="required"
+                      @input="onInput($event, obj);setValueDate(obj.value, obj); obj.isDisplay = false;"
+                      @change="onInput($event, obj);setValueDate(obj.value, obj);"
+                      :id="obj.schema.id"
                     ></v-text-field>
                   </template>
                   <v-date-picker
-                    v-model="datePic"
-                    @input="menu = false"
+                    :value="obj.value ? formatDate(obj.value) : datePic"
+                    @input="obj.isDisplay = false"
                     @focus="onEvent($event, obj)"
-                    @change="onInput($event, obj)"
-                    :show-current="datePic ? datePic : setDate(obj.value)"
+                    @change="setValueDate($event, obj);"
+                    :show-current="true"
                     :no-title="true"
                     :required="true"
                     :max="new Date().toISOString().substr(0, 10)"
@@ -221,8 +221,10 @@
                   id="search"
                   :small="obj.schema.small"
                   :rounded="obj.schema.rounded"
-                  class="white--text"
+                  :disabled="obj.schema.disabled"
+                  :outlined="obj.schema.outlined"
                   :color="obj.schema.color"
+                  :dark="obj.schema.dark"
                   @click="onEvent($event, obj, button)"
                 >
                   <v-icon
@@ -239,7 +241,7 @@
                   >
                     {{ obj.schema.iconCenter }}
                   </v-icon>
-                  {{ obj.schema.label }}
+					 <font class="text-capitalize">{{ obj.schema.label }}</font>
                   <v-icon
                     v-if="obj.schema.iconRight"
                     right
@@ -443,13 +445,23 @@ export default {
     }
   },  
   methods: {
-    setDate(enteredDate) {
-      let validateFormat = moment(enteredDate, 'YYYY-MM-DD', true).isValid();
-      let convertedToCalendarFormat = validateFormat ? enteredDate : moment(enteredDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      let date = new Date(convertedToCalendarFormat);
-
-      if (date.toString() !== "Invalid Date" && enteredDate.length > 9) {
-        this.datePic = convertedToCalendarFormat;
+    formatDate(enteredDate){
+      const date = new Date(enteredDate);
+      const validateDateFormat = moment(enteredDate, 'DD-MM-YYYY', true).isValid(); 
+      if (enteredDate && enteredDate.length>6) {
+        if (validateDateFormat) {
+             return moment(enteredDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+        }
+      }
+    },
+    setValueDate(enteredDate, obj){
+      const date = new Date(enteredDate);
+      const validateDateFormat = moment(enteredDate, 'YYYY-MM-DD', true).isValid(); 
+      if (isNaN(enteredDate) && date.toString() !== 'Invalid Date') {
+        if (validateDateFormat) {
+             obj.value = moment(enteredDate, "YYYY-MM-DD").format("DD-MM-YYYY");
+             this.onInput(obj.value, obj);
+        }
       }
     },
     mapTypeToComponent (type) {
