@@ -123,13 +123,14 @@
                   </template>
                   <v-date-picker
                     :value="obj.value ? formatDate(obj.value) : datePic"
+                    :min="obj.schema.min"
+                    :max="obj.schema.max"
                     @input="obj.isDisplay = false"
                     @focus="onEvent($event, obj)"
                     @change="setValueDate($event, obj);"
                     :show-current="true"
                     :no-title="true"
                     :required="true"
-                    :max="new Date().toISOString().substr(0, 10)"
                   ></v-date-picker>
                 </v-menu>
 
