@@ -126,6 +126,7 @@
                   </template>
                   <v-date-picker
                     :value="obj.value ? formatDate(obj.value) : datePic"
+                    :locale="obj.schema.locale ? obj.schema.locale : 'en-GB'"
                     :min="obj.schema.min"
                     :max="obj.schema.max"
                     @input="obj.isDisplay = false"
