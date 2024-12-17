@@ -80,7 +80,14 @@
                   @focus="onEvent($event, obj)"
                   @change="onInput($event, obj)"
                   @blur="onEvent($event, obj)"
-                ></v-select>
+                >
+                  <template v-slot:item="{ item, on, attrs }" v-if="obj.schema?.slots?.item?.enable">
+                    <slot :name="obj.schema?.slots?.item?.name" :item="item" :on="on" :attrs="attrs" :schema="obj.schema"></slot>
+                  </template>
+                  <template v-slot:selection="{ item, on, attrs }" v-if="obj.schema?.slots?.selection?.enable">
+                    <slot :name="obj.schema?.slots?.selection?.name" :item="item" :on="on" :attrs="attrs" :schema="obj.schema"></slot>
+                  </template>                  
+                </v-select>
 
                 <!-- treeview -->
                 <v-treeview
