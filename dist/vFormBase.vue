@@ -80,7 +80,13 @@
                   @focus="onEvent($event, obj)"
                   @change="onInput($event, obj)"
                   @blur="onEvent($event, obj)"
-                >         
+                >    
+                  <template v-slot:[slot]="data" v-for="slot in Object.keys(obj.schema.slots)" v-if="obj.schema.enableSlots && obj.schema.slots">
+                    <slot :name="obj.schema.slots[slot].name" v-bind="data" :schema="obj.schema"></slot>
+                  </template>
+                  <template v-slot:prepend-item v-if="obj.schema.enableSlots && obj.schema.slots && obj.schema.slots['prepend-item']">
+                    <slot :name="obj.schema.slots['prepend-item'].name" :schema="obj.schema"></slot>
+                  </template>
                 </v-select>
 
                 <!-- treeview -->
